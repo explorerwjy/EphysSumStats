@@ -1,0 +1,18 @@
+{
+  "file_id": "sub-1000181910_ses-1000781418",
+  "nwb_path": "C:\\Users\\manol\\Downloads\\sub-1000181910-20260108T152600Z-1-001\\sub-1000181910\\sub-1000181910_ses-1000781418_icephys.nwb",
+  "tables": {
+    "pa": "pA_test_cell.parquet",
+    "mv": "mV_test_cell.parquet",
+    "stimulus": "stimulus_test_cell.parquet",
+    "response": "response_test_cell.parquet"
+  },
+  "meta": {
+    "cellNum": "test_cell"
+  },
+  "protocols": {},
+  "analysis": {
+    "resting_vm_table": "analysis.parquet",
+    "resting_vm_mean": -65.32743072509766
+  }
+}

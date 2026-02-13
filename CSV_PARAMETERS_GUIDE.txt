@@ -1,0 +1,994 @@
+================================================================================
+ELECTROPHYSIOLOGY ANALYSIS PIPELINE - CSV PARAMETERS DOCUMENTATION
+Version 01-07 | Last Updated: February 7, 2026
+================================================================================
+
+This document provides a comprehensive guide to all parameters exported to the 
+CSV output file (analysis.csv). Each parameter includes:
+1. Parameter name
+2. Where in code it's calculated (file and line range)
+3. How it's calculated (formula/logic)
+4. What it means in electrophysiology context
+5. Expected range/units
+6. Typical significance for data interpretation
+
+================================================================================
+METADATA PARAMETERS
+================================================================================
+
+Parameter: file_id
+Location: analysis.py, line 47
+Calculation: Extracted from manifest.json["file_id"]
+What it means: Unique identifier for the recording file in the data bundle
+Context: Links the analysis result back to the original recording
+Units: String identifier (e.g., "2025_10_15_0002_660")
+Typical values: 8-digit date + 4-digit recording ID
+Significance: Essential for data tracking and organization
+
+---
+
+Parameter: meta_* (prefix for all metadata fields)
+Location: analysis.py, lines 48-49, 52-53
+Calculation: All fields from manifest.json["meta"] are broadcast as columns
+What it means: Recording metadata including date, time, temperature, solution type
+Context: Experimental conditions under which recording was made
+Units: Varies (e.g., meta_date, meta_temperature_celsius, meta_experimenter)
+Typical values: Depend on experimental setup
+Significance: Critical for correlating analysis results with experimental conditions
+
+================================================================================
+BASELINE/RESTING PARAMETERS (First 2 Seconds of Recording)
+================================================================================
+
+Parameter: resting_vm_mean_mV
+Location: analysis.py, lines 13-20; run_analysis.py, line ~300
+Calculation: 
+  - Filter mV data to t_s <= 2.0 seconds (first 2 seconds of each sweep)
+  - Group by sweep number
+  - Calculate mean voltage: mean(voltage[0 to 2s])
+  - Return one value per sweep
+What it means: The resting membrane potential (Vm_rest) during the quiet baseline 
+  period before stimulation occurs
+Electrophysiology context: 
+  - Vm_rest is a fundamental property of neurons, typically around -70 mV
+  - Indicates cell health and stability
+  - Should remain relatively stable across sweeps (drift < 5 mV)
+  - Negative values indicate typical hyperpolarized resting state
+Units: millivolts (mV)
+Expected range: -65 to -75 mV for healthy mammalian neurons
+Typical values: -68 to -72 mV
+Significance: 
+  - CRITICAL parameter for cell quality assessment
+  - Drift > 5 mV indicates potential cell deterioration or electrode movement
+  - Used as quality control marker
+  - Affects interpretation of threshold calculations
+
+---
+
+Parameter: filtered_resting_vm_mean_mV
+Location: sav_gol_filter.py, lines 191-192 (after Savitzky-Golay filtering)
+Calculation:
+  - Re-calculate resting Vm from FILTERED voltage (not raw)
+  - Apply Savitzky-Golay low-pass filter first:
+    * Window length: 2,001 samples (100.05 ms at 20 kHz)
+    * Polynomial order: 3
+  - Then extract first 2 seconds and calculate mean
+  - Smoother version of resting_vm_mean_mV
+What it means: The resting membrane potential after noise is removed
+Electrophysiology context:
+  - More robust estimate of true Vm, less affected by electrical noise
+  - Closer to biological reality after noise filtering
+  - Typically higher quality than raw resting_vm_mean_mV
+Units: millivolts (mV)
+Expected range: -65 to -75 mV (similar to raw, but less noise)
+Typical values: -68 to -72 mV
+Significance: 
+  - PREFERRED over raw resting_vm_mean_mV for analysis
+  - Less influenced by 60 Hz electrical noise and measurement artifacts
+  - Better indicator of true physiological resting potential
+
+---
+
+Parameter: grand_average_resting_vm
+Location: analysis.py, line 43; manifest.json["analysis"]["resting_vm_mean"]
+Calculation:
+  - Average of resting_vm_mean_mV across ALL sweeps in recording
+  - Stored in manifest.json
+  - Broadcast to every row in CSV
+What it means: The single resting membrane potential value for entire recording
+Electrophysiology context: Summary statistic representing cell's baseline state
+Units: millivolts (mV)
+Expected range: -65 to -75 mV
+Typical values: -68 to -72 mV
+Significance: Overall cell health indicator for the entire protocol
+
+---
+
+Parameter: filtered_grand_average_resting_vm_mean
+Location: sav_gol_filter.py, lines 211; run_analysis.py (manifest update)
+Calculation:
+  - Average of filtered_resting_vm_mean_mV across ALL sweeps
+  - df_vm_per_sweep["filtered_resting_vm_mean_mV"].mean()
+What it means: The grand average resting potential after low-pass filtering
+Electrophysiology context: Best quality estimate of cell's true baseline Vm
+Units: millivolts (mV)
+Expected range: -65 to -75 mV
+Typical values: -68 to -72 mV
+Significance: 
+  - BEST QUALITY baseline parameter available
+  - Use this for publication-quality reporting
+  - Most robust to noise and artifacts
+
+================================================================================
+BASELINE METRICS - SIGNAL STABILITY & DRIFT
+================================================================================
+
+Parameter: drift_range
+Location: sav_gol_filter.py, line 121
+Calculation:
+  - vmax = maximum of ALL filtered baseline voltages (first 2s)
+  - vmin = minimum of ALL filtered baseline voltages (first 2s)
+  - drift_range = vmax - vmin
+  - Calculated across all 40 sweeps and all time points
+What it means: Total voltage range spanned during entire baseline period
+Electrophysiology context:
+  - Measures overall membrane potential instability
+  - Indicates whether cell was drifting up/down during recording
+  - High drift suggests electrode movement, cell stress, or environmental change
+Units: millivolts (mV)
+Expected range: 0.5 to 3.0 mV for healthy recording
+Typical values: 1-2 mV
+Significance:
+  - VALUE BELOW 2 mV: Excellent recording quality
+  - VALUE 2-3 mV: Good quality
+  - VALUE > 5 mV: Poor quality, possible electrode drift or cell deterioration
+  - CRITICAL for quality control assessment
+
+---
+
+Parameter: d_std (drift standard deviation)
+Location: sav_gol_filter.py, line 124
+Calculation:
+  - Calculate standard deviation of ALL filtered baseline voltages
+  - std(all_baseline_voltages_across_all_sweeps)
+What it means: Statistical spread of baseline voltage values
+Electrophysiology context:
+  - Measures variability in the resting potential
+  - Captures both systematic drift and noise
+  - More sensitive to gradual changes than drift_range
+Units: millivolts (mV)
+Expected range: 0.3 to 1.0 mV
+Typical values: 0.5-0.8 mV
+Significance:
+  - VALUE < 0.5 mV: Excellent stability
+  - VALUE 0.5-1.0 mV: Good stability
+  - VALUE > 1.5 mV: Significant instability
+  - Helps distinguish random noise from systematic drift
+
+---
+
+Parameter: normalized_signal_variability
+Location: sav_gol_filter.py, lines 131-152
+Calculation:
+  - Downsample baseline voltage to 50 ms bins (40 total bins per 2s sweep)
+  - For each 50 ms window, calculate mean voltage
+  - For each sweep, calculate cumulative absolute difference between adjacent windows:
+    Σ|V[window_i+1] - V[window_i]| / (time_window_duration_in_seconds)
+    Note: time_window = 2 seconds
+  - Average this metric across all 40 sweeps
+What it means: Normalized rate of change of baseline voltage
+Electrophysiology context:
+  - Measures how much the membrane potential is "wiggling" or changing
+  - Combines drift and noise into single metric
+  - Lower values = more stable, less electrical noise
+Units: mV/second (calculated over 50 ms bins, normalized to 2 second window)
+Expected range: 0.1 to 0.5 mV/second
+Typical values: 0.15-0.3 mV/second
+Significance:
+  - VALUE < 0.2: Excellent recording quality, minimal noise
+  - VALUE 0.2-0.4: Good quality
+  - VALUE > 0.5: Noisy recording, may indicate electrical interference
+
+================================================================================
+BASELINE DERIVATIVE PARAMETERS - VOLTAGE CHANGE RATE
+================================================================================
+
+Parameter: filtered_RMP_derivative
+Location: sav_gol_filter.py, lines 154-167
+Calculation:
+  - For filtered baseline voltage (first 2 seconds)
+  - Divide into 50 ms bins and calculate mean voltage per bin
+  - Calculate dV/dt (rate of change) between adjacent 50 ms bins
+  - dt = 0.05 seconds (50 ms)
+  - dVdt = np.gradient(voltage_50ms_bins, dt)
+  - Take mean dV/dt across all bins for each sweep
+What it means: Average rate at which baseline membrane potential is changing
+Electrophysiology context:
+  - Indicates velocity of voltage changes
+  - Positive = depolarization (becoming less negative)
+  - Negative = hyperpolarization (becoming more negative)
+  - Should be close to zero (stable baseline)
+Units: millivolts per second (mV/s)
+Expected range: -0.1 to +0.1 mV/s (near zero)
+Typical values: -0.05 to +0.05 mV/s
+Significance:
+  - VALUE NEAR ZERO: Excellent stability
+  - VALUE |0.05-0.1| mV/s: Gradual drift (slow depolarization/hyperpolarization)
+  - VALUE |> 0.2| mV/s: Significant drift, problem with recording
+  - Used to detect slow deterioration or electrode drift
+
+---
+
+Parameter: frequency_pre_filter
+Location: sav_gol_filter.py, line 191
+Calculation:
+  - Detect peaks in first 2 seconds of UNFILTERED (raw) baseline voltage
+  - Peak detection parameters: height=-30 mV, prominence=20
+  - Remove duplicates: enforce 2 ms minimum distance between peaks
+  - Count peaks: n_peaks_pre = len(detected_peaks)
+  - frequency_pre = n_peaks_pre / 2.0 (divide by 2-second window duration)
+What it means: Rate of action potential firing in baseline period (RAW data)
+Electrophysiology context:
+  - Indicates spontaneous activity in baseline (should be near zero)
+  - For most neurons: should be 0 (no spontaneous firing during baseline)
+  - Presence of baseline firing: indicates neuron is tonically active
+  - High frequency baseline activity: may indicate depolarization or hyperexcitability
+Units: Hertz (Hz) = spikes per second
+Expected range: 0-1 Hz for baseline (most cells should be ~0)
+Typical values: 0 Hz (no spontaneous activity)
+Significance:
+  - VALUE = 0: Normal, cell is quiescent at baseline
+  - VALUE > 1: Cell has spontaneous activity
+  - VALUE > 5: Abnormal, cell is hyperexcitable or depolarized
+
+---
+
+Parameter: frequency_post_filter
+Location: sav_gol_filter.py, line 192
+Calculation:
+  - Same as frequency_pre_filter BUT using FILTERED baseline voltage
+  - Detect peaks in filtered baseline (after Savitzky-Goyal smoothing)
+  - Same parameters: height=-30 mV, prominence=20
+  - frequency_post = n_peaks_post / 2.0
+What it means: Rate of action potential firing in baseline (NOISE-REDUCED data)
+Electrophysiology context:
+  - More robust baseline firing rate (noise filtered out)
+  - Typically LOWER than frequency_pre_filter (noise peaks removed)
+  - True biological baseline spikes vs noise artifacts
+Units: Hertz (Hz) = spikes per second
+Expected range: 0-1 Hz (typically 0)
+Typical values: 0 Hz
+Significance:
+  - PREFERRED over frequency_pre_filter (less noise)
+  - Difference between pre and post indicates noise level
+    (pre - post = noise-induced false peaks)
+  - If pre >> post: recording is noisy
+
+================================================================================
+STIMULUS PERIOD PARAMETERS (Spike Analysis - 2.07 to 2.6 seconds)
+================================================================================
+
+ANALYSIS WINDOWS EXPLANATION:
+  The stimulus is delivered during a specific time window to avoid boundary artifacts:
+  - Analysis window (main spike detection): t_min=2.07s, t_max=2.6s (0.53s = 530ms)
+  - Plotting window (for visualization): t_plot_min=2.04s, t_plot_max=2.72s
+  - Current measurement window: t_min_current=2.1s, t_max_current=2.55s (0.45s)
+  - Threshold exclusion window: t_start=2.0781s, t_end=2.578s (for peak edge removal)
+  - Baseline offset calculation window: t_baseline_min=1.6s, t_baseline_max=1.8s (0.2s)
+  - Current analysis uses 2.1-2.55s window (middle portion, avoid edges)
+
+Location of analysis windows: spike_detection_new.py, lines 18-26
+Significance: Fixed windows that should NOT be changed without understanding protocol
+
+---
+
+Parameter: avg_injected_current_pA
+Location: spike_detection_new.py, lines 570-593; run_analysis.py (replacement + reloading)
+Calculation:
+  - Filter pA (command current) data to stimulus window: 2.1 <= t_s <= 2.55 seconds
+  - Filter to protocol sweeps only (sweeps that exist in mV data)
+  - Calculate baseline current offset from quiet period: 1.6 <= t_s <= 1.8 seconds
+  - baseline_offset = mean(pA[1.6:1.8s])
+  - Subtract baseline: pA_corrected = pA - baseline_offset
+  - For each sweep, calculate mean: mean_current_sweep = mean(pA_corrected[2.1:2.55s])
+  - Apply 5 pA rounding: round to nearest 5 or 0 pA
+    * Formula: np.round(mean / 5) * 5
+    * Example: -27.1 pA → -25 pA, -28.2 pA → -30 pA
+  - IMPORTANT: If pA_was_replaced=True, skip baseline offset (already applied during replacement)
+What it means: The average current injected into the cell during the stimulus period
+Electrophysiology context:
+  - In current clamp recording, current is injected to depolarize the cell
+  - Negative current = hyperpolarization (cells go more negative/inhibitory)
+  - Positive current = depolarization (cells go more positive/excitatory)
+  - Current drives action potential generation
+  - Amount of current directly relates to threshold and firing pattern
+Units: picoamperes (pA) = 10^-12 Amperes
+Expected range: -100 to +100 pA (typical) or wider for large cells
+Typical values: -30, -25, -20, -15, -10, -5, 0, +5, +10 pA (in 5 pA increments)
+Significance:
+  - CRITICAL for stimulus characterization
+  - Shows what current was used to evoke each response
+  - Lower current (more negative) = harder to reach threshold
+  - Used with spike frequency to construct I-F curve (current vs firing frequency)
+  - Current threshold indicates cell excitability
+  - Rounding to 5 pA makes it easier to compare between sweeps and recordings
+
+---
+
+Parameter: current_threshold_pA
+Location: spike_detection_new.py, lines 635-642; analysis.py (added to manifest)
+Calculation:
+  - Identify the FIRST sweep that contains at least one action potential
+  - Extract avg_injected_current_pA from that sweep
+  - That value = current_threshold_pA
+What it means: The minimum current required to evoke an action potential
+Electrophysiology context:
+  - Fundamental excitability parameter
+  - Rheobase = minimum current to trigger AP
+  - Lower threshold = hyperexcitable cell (easier to fire)
+  - Higher threshold = hyperpolarized or less excitable cell
+  - Single most important measure of intrinsic neuronal excitability
+Units: picoamperes (pA)
+Expected range: 5-50 pA (typical range for neurons)
+Typical values: 10-30 pA
+Significance:
+  - CRITICAL for neuronal excitability assessment
+  - Used to classify neuron type (inhibitory typically have higher threshold)
+  - Changes indicate drug effects, neuromodulation, or pathology
+  - Essential for current-frequency (I-F) relationship
+  - Used to detect hyperexcitability or hypoexcitability
+  - Often reported as key result in electrophysiology papers
+
+================================================================================
+ACTION POTENTIAL MORPHOLOGY PARAMETERS
+================================================================================
+
+All morphology parameters are calculated ONLY for sweeps that contain action potentials.
+For sweeps with no spikes, all morphology values = NaN (not available).
+
+Calculation location: spike_detection_new.py, lines 85-500 (spike morphology extraction)
+
+THRESHOLD & PEAK DETECTION METHOD:
+  For each detected action potential peak:
+  1. Identify maximum voltage (peak) and time of peak
+  2. Calculate dV/dt (voltage change rate) around peak
+  3. Find threshold crossing point (where dV/dt becomes significant)
+  4. Identify fast trough (minimum voltage after peak)
+  5. Measure various time intervals and voltage differences
+
+---
+
+Parameter: avg_peak_voltage_mV
+Location: spike_detection_new.py, lines 507-523 (aggregation)
+Calculation:
+  - For each action potential: identify maximum voltage point
+  - peak_voltage = max(voltage[around_spike])
+  - Average across all spikes in sweep: mean(all_peak_voltages)
+What it means: The average maximum voltage reached during action potentials
+Electrophysiology context:
+  - Peak voltage is where AP amplitude is measured from
+  - Most spikes reach similar peak voltage (related to Na+ equilibrium potential)
+  - Peak reflects balance of inward Na+ and outward K+ currents
+Units: millivolts (mV)
+Expected range: -10 to +40 mV
+Typical values: 0 to +30 mV (depends on Na equilibrium potential)
+Significance:
+  - Usually remains constant across current levels
+  - Changes suggest altered ion channel function or reversal potentials
+  - Typically near sodium equilibrium potential (~+60 mV for mammalian neurons)
+
+---
+
+Parameter: avg_threshold_voltage_mV
+Location: spike_detection_new.py, lines 507-523
+Calculation:
+  - For each action potential: find voltage where spike "takes off"
+  - Identify where dV/dt becomes large (spike initiation threshold)
+  - threshold = voltage at this dV/dt crossing point
+  - Average across all spikes: mean(all_thresholds)
+What it means: The average membrane potential at which action potentials are initiated
+Electrophysiology context:
+  - CRITICAL parameter: defines where action potential starts
+  - Related to sodium channel properties
+  - Usually -40 to -20 mV (where Na+ channels open)
+  - More negative threshold = harder to reach (hyperpolarized)
+  - Less negative threshold = easier to reach (less hyperpolarized)
+Units: millivolts (mV)
+Expected range: -45 to -15 mV
+Typical values: -35 to -25 mV
+Significance:
+  - Most sensitive measure of Na+ channel state
+  - Changes indicate drug effects or pathology
+  - Typically more negative (more hyperpolarized) than resting Vm
+
+---
+
+Parameter: avg_threshold_to_peak_mV
+Location: spike_detection_new.py, lines 507-523
+Calculation:
+  - For each spike: peak_amplitude = peak_voltage - threshold_voltage
+  - Average across all spikes: mean(all_amplitudes)
+What it means: The average amplitude of action potentials (voltage rise)
+Electrophysiology context:
+  - Measures how far above threshold the AP reaches
+  - Indicator of Na+ channel sufficiency
+  - Also reflects K+ channel properties (determines how high peak goes)
+Units: millivolts (mV)
+Expected range: 40-100 mV
+Typical values: 60-90 mV (typical mammalian AP amplitude)
+Significance:
+  - Standard measure of AP "size"
+  - Reduced amplitude: may indicate Na+ channel block or inactivation
+  - Increased amplitude: may indicate altered K+ channel function
+  - Used to assess spike quality
+
+---
+
+Parameter: avg_fast_trough_at_hyperpolarization_mV
+Location: spike_detection_new.py, lines 507-523
+Calculation:
+  - For each action potential: identify minimum voltage point AFTER peak
+  - fast_trough = minimum voltage reached after peak
+  - Average across all spikes: mean(all_fast_troughs)
+What it means: The average maximum hyperpolarization (most negative point) after spike
+Electrophysiology context:
+  - Reflects K+ channel activation
+  - "Fast trough" = AHP (afterhyperpolarization) = hyperpolarization after spike
+  - Indicates strength of K+ conductance repolarization
+  - Important for interspike interval regulation
+Units: millivolts (mV)
+Expected range: -60 to -90 mV (more negative than resting)
+Typical values: -70 to -80 mV
+Significance:
+  - Deeper AHP = stronger K+ channel activity = longer inter-spike interval
+  - Shallower AHP = weaker K+ channel activity = faster firing possible
+  - Changes indicate K+ channel modulation
+  - Used to assess repolarization dynamics
+
+================================================================================
+ACTION POTENTIAL KINETICS PARAMETERS
+================================================================================
+
+---
+
+Parameter: avg_upstroke_to_peak_ms
+Location: spike_detection_new.py, lines 507-523
+Calculation:
+  - For each spike: measure time from threshold crossing to peak
+  - upstroke_duration = time_at_peak - time_at_threshold
+  - Average: mean(all_upstroke_durations)
+What it means: Average duration of the rising phase (depolarization) of action potential
+Electrophysiology context:
+  - Upstroke = depolarization phase where voltage goes from threshold to peak
+  - Speed depends on Na+ channel density and driving force
+  - Faster upstroke = more Na+ channels open
+  - Slower upstroke = fewer Na+ channels or reduced driving force
+Units: milliseconds (ms)
+Expected range: 0.3 to 1.5 ms
+Typical values: 0.5-1.0 ms for standard neurons
+Significance:
+  - VERY SENSITIVE to Na+ channel properties
+  - Reduced speed: indicates Na+ channel block or pathology
+  - Used to assess Na+ channel function
+  - Important for neural coding (faster upstrokes = more reliable transmission)
+
+---
+
+Parameter: avg_upstroke_to_peak_mV
+Location: spike_detection_new.py, lines 507-523
+Calculation:
+  - For each spike: measure voltage change during upstroke
+  - upstroke_voltage_change = peak_voltage - threshold_voltage
+  - Note: this is SAME as avg_threshold_to_peak_mV
+What it means: The voltage span covered during upstroke
+Electrophysiology context:
+  - Same as AP amplitude
+  - Measures how far AP rises
+Units: millivolts (mV)
+Expected range: 40-100 mV
+Typical values: 60-90 mV
+Significance: Duplicate of avg_threshold_to_peak_mV
+
+---
+
+Parameter: avg_peak_to_downstroke_ms
+Location: spike_detection_new.py, lines 507-523
+Calculation:
+  - For each spike: measure time from peak to fast trough
+  - downstroke_duration = time_at_fast_trough - time_at_peak
+  - Average: mean(all_downstroke_durations)
+What it means: Average duration of the falling/repolarization phase
+Electrophysiology context:
+  - Downstroke = repolarization phase where voltage falls from peak back to baseline
+  - Speed depends on K+ channel opening and Na+ channel inactivation
+  - Faster downstroke = faster K+ activation or faster Na+ inactivation
+Units: milliseconds (ms)
+Expected range: 1-5 ms
+Typical values: 1-3 ms
+Significance:
+  - Indicates K+ channel properties and Na+ channel inactivation kinetics
+  - Slower repolarization: may indicate K+ channel block
+  - Faster repolarization: may indicate enhanced K+ channel activity
+
+---
+
+Parameter: avg_height_mV
+Location: spike_detection_new.py, lines 507-523
+Calculation:
+  - For each spike: height = peak_voltage - fast_trough_voltage
+  - This is the total span from peak to trough
+  - Average: mean(all_heights)
+What it means: The "full height" of the action potential including AHP
+Electrophysiology context:
+  - Total excursion of voltage during spike and afterhyperpolarization
+  - Combines peak voltage with post-spike hyperpolarization
+  - Larger height = larger AP + deeper AHP
+Units: millivolts (mV)
+Expected range: 100-150 mV
+Typical values: 110-130 mV
+Significance:
+  - Reflects both depolarization and hyperpolarization components
+  - Used to assess overall excitability dynamics
+
+---
+
+Parameter: avg_half_height_mV
+Location: spike_detection_new.py, lines 507-523
+Calculation:
+  - For each spike: 
+    - full_height = peak - fast_trough
+    - mid_point = threshold + (full_height / 2)
+  - Average: mean(all_half_heights)
+What it means: The voltage at the middle point between threshold and peak
+Electrophysiology context:
+  - Reference point for measuring spike width (width at half-height)
+  - Used to calculate spike duration metrics
+Units: millivolts (mV)
+Expected range: Half-way between threshold and peak
+Typical values: -10 to +10 mV
+Significance: Reference point for spike width calculations
+
+---
+
+Parameter: avg_ap_width_ms
+Location: spike_detection_new.py, lines 507-523
+Calculation:
+  - For each spike: measure spike width at HALF the peak height
+  - Find time when voltage crosses halfway point during upstroke
+  - Find time when voltage crosses halfway point during downstroke
+  - width = time_downslope - time_upslope
+  - Average: mean(all_widths)
+What it means: Average duration of action potential measured at half-peak height
+Electrophysiology context:
+  - Standard measure of spike width/duration
+  - Related to refractory period and firing rate
+  - Narrow spikes = fast-spiking neurons
+  - Wide spikes = regular-spiking neurons
+Units: milliseconds (ms)
+Expected range: 0.5-2.0 ms
+Typical values: 0.8-1.2 ms for standard cells, 0.5-0.7 ms for fast-spiking
+Significance:
+  - IMPORTANT for neuron classification
+  - Fast-spiking inhibitory neurons: width < 1 ms
+  - Regular-spiking excitatory neurons: width 1-2 ms
+  - Affected by K+ channel properties and Na+ inactivation
+  - Changes indicate neuromodulation or pathology
+
+---
+
+Parameter: avg_threshold_fast_trough_width_ms
+Location: spike_detection_new.py, lines 507-523
+Calculation:
+  - For each spike: time from threshold to fast trough
+  - full_spike_duration = time_fast_trough - time_threshold
+  - Average: mean(all_durations)
+What it means: Total duration from spike initiation to maximum AHP
+Electrophysiology context:
+  - Entire time spike takes from threshold to deepest hyperpolarization
+  - Includes upstroke, peak, downstroke, and AHP
+Units: milliseconds (ms)
+Expected range: 2-10 ms
+Typical values: 3-5 ms
+Significance:
+  - Comprehensive measure of spike + AHP duration
+  - Affects maximum firing rate (refractory period)
+
+---
+
+Parameter: avg_upstroke_downstroke_ratio
+Location: spike_detection_new.py, lines 507-523
+Calculation:
+  - For each spike: 
+    - upstroke_slope = (peak_voltage - threshold_voltage) / upstroke_time_ms
+    - downstroke_slope = (fast_trough_voltage - peak_voltage) / downstroke_time_ms
+    - ratio = upstroke_slope / downstroke_slope
+  - Average: mean(all_ratios)
+What it means: Ratio of how fast spike rises vs how fast it falls
+Electrophysiology context:
+  - upstroke typically faster than downstroke (ratio > 1)
+  - Indicates Na+ dominates depolarization, K+ dominates repolarization
+  - Ratio close to 1 = symmetric spike
+  - Large ratio = very asymmetric spike
+Units: Dimensionless ratio
+Expected range: 1.5 to 3.0
+Typical values: 2.0-2.5
+Significance:
+  - Reflects balance between Na+ and K+ channel kinetics
+  - Used to characterize spike shape
+  - Changes indicate altered Na+/K+ channel balance
+
+================================================================================
+SPIKE TIMING & FREQUENCY PARAMETERS
+================================================================================
+
+---
+
+Parameter: spike_frequency_Hz
+Location: spike_detection_new.py, lines 507-523
+Calculation:
+  - Count number of action potentials detected in stimulus window
+  - Time window = 2.07 to 2.6 seconds (0.53 second duration)
+  - frequency = n_spikes / window_duration_seconds
+  - For empty spikes: frequency = 0.0
+What it means: Average rate of action potential generation during stimulus
+Electrophysiology context:
+  - Fundamental output of neuron: how many spikes per second
+  - Critical for neural coding and information transmission
+  - Used to create I-F (current-frequency) curve
+Units: Hertz (Hz) = spikes per second
+Expected range: 0 to 100 Hz (varies by neuron type)
+Typical values: 0-50 Hz (depends on cell type and current)
+Significance:
+  - PRIMARY measure of neuronal output
+  - Shows firing pattern response to stimulus
+  - Used with current to construct I-F curve
+  - Changes indicate excitability changes
+  - Fundamental for neural coding studies
+
+---
+
+Parameter: mean_isi_ms
+Location: spike_detection_new.py, lines 507-523
+Calculation:
+  - ISI = interspike interval = time between consecutive action potentials
+  - For each sweep with multiple spikes:
+    - times_of_peaks = [t1, t2, t3, ...]
+    - isis = [t2-t1, t3-t2, ...]  (in seconds)
+    - isis_ms = isis * 1000  (convert to milliseconds)
+    - mean_isi = mean(isis_ms)
+  - If only 0 or 1 spikes: mean_isi = NaN
+What it means: Average time between consecutive action potentials
+Electrophysiology context:
+  - Inverse of frequency: if mean_isi=50ms, then frequency=20Hz
+  - Depends on current level and adaptation
+  - Reflects intrinsic firing rate properties
+  - Used to assess rhythmicity
+Units: milliseconds (ms)
+Expected range: 10-200 ms
+Typical values: 20-100 ms (depending on frequency)
+Significance:
+  - Shows consistency of spike timing
+  - Variable ISIs (high cv_isi) indicate adaptation or irregular firing
+  - Regular ISIs (low cv_isi) indicate clock-like neurons
+
+---
+
+Parameter: cv_isi (Coefficient of Variation of ISI)
+Location: spike_detection_new.py, lines 507-523
+Calculation:
+  - ISI = interspike intervals (time between spikes)
+  - cv_isi = std(ISI) / mean(ISI)
+  - Dimensionless ratio of standard deviation to mean
+What it means: Regularity/irregularity of spike timing (how consistent are ISIs)
+Electrophysiology context:
+  - CV_ISI = 0: Perfect regularity (each ISI identical)
+  - CV_ISI < 0.2: Regular clock-like firing
+  - CV_ISI 0.2-0.5: Moderate irregularity (adaptation or noise)
+  - CV_ISI > 0.5: Highly irregular firing (Poisson-like)
+  - Indicates firing pattern and potential for temporal coding
+Units: Dimensionless (ratio, 0 to 1+)
+Expected range: 0.0 to 1.0
+Typical values: 0.1-0.3 (regularly firing neurons)
+Significance:
+  - IMPORTANT for neural coding studies
+  - Low CV: clock-like, reliable temporal coding
+  - High CV: irregular, better for rate coding
+  - Indicates presence of spike-frequency adaptation
+
+================================================================================
+SPIKE ADAPTATION RATIOS
+================================================================================
+
+These parameters compare spike properties between different spikes in the same sweep
+to assess adaptation (changes in spike properties over time during sustained stimulus).
+
+---
+
+Parameter: middle_first_AP_width_ratio
+Location: spike_detection_new.py, lines 507-523
+Calculation:
+  - If exactly 3+ spikes detected:
+    - Take middle spike (spike at index N/2 in sorted list)
+    - Take first spike (spike at index 0)
+    - ratio = middle_spike_width / first_spike_width
+  - If < 3 spikes or exactly 3: ratio = NaN
+What it means: How spike width changes from early to middle of response
+Electrophysiology context:
+  - Width often increases during repetitive firing (adaptation)
+  - Ratio > 1: middle spike is wider (adaptation)
+  - Ratio < 1: middle spike is narrower (sensitization - rare)
+  - Ratio = 1: no change (no width adaptation)
+Units: Dimensionless ratio
+Expected range: 0.8 to 1.5
+Typical values: 1.0-1.1 (slight widening)
+Significance:
+  - Indicates presence of adaptation mechanisms
+  - Widening reflects inactivation of Na+ channels
+  - Used to assess spike-frequency adaptation
+
+---
+
+Parameter: middle_first_AP_peak_threshold_ratio
+Location: spike_detection_new.py, lines 507-523
+Calculation:
+  - Compare amplitude (threshold-to-peak) between middle and first spike
+  - ratio = middle_spike_amplitude / first_spike_amplitude
+What it means: How AP amplitude changes from early to middle of response
+Electrophysiology context:
+  - Amplitude typically DECREASES during adaptation (ratio < 1)
+  - Ratio < 1: adaptation (smaller spikes later)
+  - Ratio = 1: no change
+  - Reflects Na+ channel inactivation and K+ channel activation
+Units: Dimensionless ratio
+Expected range: 0.7 to 1.0
+Typical values: 0.85-0.95 (typical adaptation)
+Significance:
+  - Indicates strength of adaptation
+  - Used to assess intrinsic excitability changes
+  - Related to Na+ inactivation time course
+
+---
+
+Parameter: middle_first_AP_fast_trough_ratio
+Location: spike_detection_new.py, lines 507-523
+Calculation:
+  - Compare fast trough (AHP depth) between middle and first spike
+  - Note: both values are negative (hyperpolarized)
+  - ratio = middle_spike_AHP / first_spike_AHP
+What it means: How AHP depth changes from early to middle of response
+Electrophysiology context:
+  - Ratio < 1: AHP becomes less deep (weaker hyperpolarization)
+  - Ratio = 1: no change in AHP
+  - Reflects adaptation of K+ channels
+Units: Dimensionless ratio
+Expected range: 0.8 to 1.2
+Typical values: 0.9-1.0 (relatively stable)
+Significance:
+  - Indicates K+ channel adaptation
+  - Shallow AHP = stronger facilitation (easier to fire next spike)
+  - Deep AHP = stronger refractoriness (harder to fire next spike)
+
+---
+
+Parameter: last_first_AP_width_ratio
+Location: spike_detection_new.py, lines 507-523
+Calculation:
+  - Compare spike width between last spike and first spike
+  - ratio = last_spike_width / first_spike_width
+What it means: Cumulative spike width change over entire response
+Electrophysiology context:
+  - Shows total adaptation from first to last spike
+  - Ratio > 1: significant widening (strong adaptation)
+  - Ratio = 1: no change
+  - Usually larger than middle_first ratio (more time for adaptation)
+Units: Dimensionless ratio
+Expected range: 0.8 to 2.0
+Typical values: 1.0-1.3 (gradual widening)
+Significance:
+  - Comprehensive measure of spike-frequency adaptation
+  - Large ratio: strong adaptation process
+  - Used to characterize intrinsic properties
+
+---
+
+Parameter: last_first_AP_peak_threshold_ratio
+Location: spike_detection_new.py, lines 507-523
+Calculation:
+  - Compare amplitude between last and first spike
+  - ratio = last_spike_amplitude / first_spike_amplitude
+What it means: Cumulative amplitude change over entire response
+Electrophysiology context:
+  - Shows progressive spike amplitude reduction (adaptation)
+  - Ratio < 1: amplitude decreases (typical adaptation)
+  - Usually larger change than middle_first (more time for adaptation)
+Units: Dimensionless ratio
+Expected range: 0.5 to 1.0
+Typical values: 0.75-0.90 (moderate amplitude reduction)
+Significance:
+  - Indicates strength of overall adaptation
+  - Used to distinguish different neuron types
+  - Strong adaptation: inhibitory cells
+  - Weak adaptation: excitatory cells
+
+---
+
+Parameter: last_first_AP_fast_trough_ratio
+Location: spike_detection_new.py, lines 507-523
+Calculation:
+  - Compare AHP depth between last and first spike
+  - ratio = last_spike_AHP / first_spike_AHP
+What it means: Cumulative AHP change over entire response
+Electrophysiology context:
+  - Shows how hyperpolarization changes with repeated firing
+  - Ratio < 1: AHP becomes less deep (K+ channel inactivation)
+  - Ratio > 1: AHP becomes deeper (K+ channel accumulation)
+Units: Dimensionless ratio
+Expected range: 0.7 to 1.3
+Typical values: 0.95-1.05 (relatively stable)
+Significance:
+  - Indicates K+ channel dynamics during repeated firing
+  - Used to assess intrinsic cellular properties
+
+================================================================================
+BULK MEASUREMENT PARAMETERS
+================================================================================
+
+---
+
+Parameter: input_resistance (Rin)
+Location: input_resistance.py, lines 58-104; analysis.py line 43
+Calculation:
+  - Identify sweeps with NO action potentials (low current sweeps)
+  - For each of these sweeps:
+    - Calculate mean current: I_mean = mean(pA[2.1:2.55s])
+    - Calculate mean voltage: V_mean = mean(mV[2.1:2.55s])
+  - Collect at least 7 sweep pairs (I, V)
+  - Fit linear regression: V = Rin * I + V_intercept
+  - Rin = slope of the line (in mV/pA = MΩ)
+  - R² shows goodness of fit (should be > 0.9)
+What it means: The electrical resistance of the cell membrane
+Electrophysiology context:
+  - Ohm's law: V = I * Rin
+  - High Rin: membrane is "tight", cells difficult to depolarize
+  - Low Rin: membrane is "leaky", cells easy to depolarize
+  - Measured from I-V curve (plot of I vs V)
+  - Indicative of cell properties:
+    - Small cells/dendrites: high Rin (> 500 MΩ)
+    - Large cells/whole neurons: low Rin (< 100 MΩ)
+    - Soma (cell body): medium Rin (50-500 MΩ)
+Units: megaohms (MΩ) = 10^6 ohms
+Expected range: 10 to 1000 MΩ (varies widely by cell type)
+Typical values: 50-300 MΩ for somatic recordings
+Significance:
+  - CRITICAL indicator of recording quality
+  - High R² (> 0.95): excellent seal
+  - Medium R² (0.90-0.95): good recording
+  - Low R² (< 0.90): possible seal problem
+  - Used to assess patch electrode quality
+  - Changes indicate electrode seal degradation
+  - Affects interpretation of all measurements
+
+---
+
+Parameter: avg_injected_current_pA (per sweep, described above)
+Already documented in "STIMULUS PERIOD PARAMETERS" section above
+Also added to CSV from analysis: current_threshold_pA
+Same as described above
+
+================================================================================
+SUMMARY TABLE: PARAMETER CATEGORIES AND PRIORITY
+================================================================================
+
+QUALITY CONTROL PARAMETERS (assess recording quality):
+  - filtered_grand_average_resting_vm_mean: PRIMARY baseline quality metric
+  - drift_range: acceptable if < 3 mV
+  - d_std: acceptable if < 1 mV
+  - normalized_signal_variability: acceptable if < 0.4 mV/s
+  - frequency_post_filter: should be 0 Hz (no spontaneous baseline activity)
+  - input_resistance: must have R² > 0.9; indicates seal quality
+
+EXCITABILITY PARAMETERS (measure cell responsiveness):
+  - current_threshold_pA: minimum current to evoke spike
+  - spike_frequency_Hz: firing rate at each current
+  - avg_peak_voltage_mV: peak voltage reached
+  - avg_threshold_voltage_mV: where spike initiates
+
+ADAPTATION PARAMETERS (measure changes during response):
+  - mean_isi_ms: average inter-spike interval
+  - cv_isi: regularity of spike timing
+  - last_first_AP_width_ratio: spike width adaptation
+  - last_first_AP_peak_threshold_ratio: spike amplitude adaptation
+
+MORPHOLOGY PARAMETERS (detailed spike shape analysis):
+  - avg_ap_width_ms: spike duration
+  - avg_upstroke_downstroke_ratio: spike asymmetry
+  - avg_height_mV: total spike excursion
+  - avg_upstroke_to_peak_ms: depolarization speed
+
+================================================================================
+TYPICAL WORKFLOW FOR CSV ANALYSIS
+================================================================================
+
+1. CHECK QUALITY:
+   - Is filtered_grand_average_resting_vm_mean reasonable? (-65 to -75 mV)
+   - Is drift_range < 3 mV? (if not, cell may be drifting)
+   - Is input_resistance > 10 MΩ? (if not, poor seal)
+   - Is frequency_post_filter = 0? (if not, spontaneous activity present)
+
+2. CHECK EXCITABILITY:
+   - What is current_threshold_pA?
+   - Does spike_frequency_Hz increase monotonically with current?
+   - Are spikes all reaching similar peak_voltage? (should be consistent)
+
+3. CHECK SPIKE QUALITY:
+   - Is avg_threshold_voltage_mV reasonable? (typically -35 to -25 mV)
+   - Is avg_ap_width_ms typical? (0.5-2.0 ms)
+   - Are spike ratios reasonable? (last/first amplitudes showing adaptation)
+
+4. ASSESS ADAPTATION:
+   - What is cv_isi? (low = regular, high = irregular)
+   - How much does amplitude decrease? (last_first_AP_peak_threshold_ratio)
+   - Is there spike width broadening? (last_first_AP_width_ratio)
+
+5. COMPILE RESULTS:
+   - Create I-F curve: plot spike_frequency_Hz vs avg_injected_current_pA
+   - Report current_threshold_pA as excitability measure
+   - Report input_resistance as cell property
+   - Comment on adaptation patterns
+
+================================================================================
+FREQUENCY SUMMARY OUTPUT FILES
+================================================================================
+
+In addition to analysis.csv, the pipeline generates three summary CSV files
+that extract specific rows for quick reference:
+
+File: min_frequency.csv
+--------------------------------------------------------------------------------
+Location: spike_detection_new.py, lines 1270-1281
+Contents: Single row from analysis.csv corresponding to the MINIMUM CURRENT
+          that produces at least one action potential
+What it means: The threshold current level where spiking begins
+Electrophysiology context: Critical for determining neuronal excitability
+Use case: Quick lookup of rheobase/threshold parameters
+
+File: max_frequency.csv
+--------------------------------------------------------------------------------
+Location: spike_detection_new.py, lines 1283-1298
+Contents: Single row from analysis.csv corresponding to the MAXIMUM SPIKE
+          FREQUENCY observed across all current levels
+What it means: The peak firing rate achievable by the neuron
+Electrophysiology context: Indicates maximum output capacity of the cell
+Use case: Quick lookup of peak firing parameters
+
+File: mean_frequency.csv
+--------------------------------------------------------------------------------
+Location: spike_detection_new.py, lines 1299-1331
+Contents: Single row containing the MEAN of all numeric columns from the
+          first sweep up to and including the sweep with maximum frequency
+What it means: Averaged properties across the ascending limb of the I-F curve
+Electrophysiology context: Provides a summary statistic for the cell's
+          behavior during increasing current stimulation
+Use case: Single-value summary for cross-cell comparisons
+Note: Non-numeric columns (metadata) inherit values from the first row
+
+================================================================================
+END OF DOCUMENT
+================================================================================
+
+For questions about specific calculations or parameters, refer to:
+- Spike detection details: spike_detection_new.py
+- Baseline analysis: sav_gol_filter.py, analysis.py
+- Input resistance: input_resistance.py
+- Pipeline orchestration: run_analysis.py
+
+================================================================================
+DOCUMENT HISTORY
+================================================================================
+Version 01-07 (February 7, 2026):
+  - Added FREQUENCY SUMMARY OUTPUT FILES section (min/max/mean_frequency.csv)
+  - Updated file format references from JPEG to PNG
+
+Version 01-06 (January 2026):
+  - Initial comprehensive documentation of all CSV parameters
+  - Added workflow guidance section

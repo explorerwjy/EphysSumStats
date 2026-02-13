@@ -1,0 +1,743 @@
+{
+  "sweeps": {
+    "0": {
+      "valid": false,
+      "reason": "Stimulus segments too short (minimum 0.3s required)",
+      "stimulus_level_pA": 10.0,
+      "windows": {
+        "baseline_start_s": 52.984999656677246,
+        "baseline_end_s": 53.029994656677246,
+        "stimulus_start_s": 53.02999965667725,
+        "stimulus_end_s": 53.039999656677246
+      }
+    },
+    "1": {
+      "valid": false,
+      "reason": "Stimulus segments too short (minimum 0.3s required)",
+      "stimulus_level_pA": 10.0,
+      "windows": {
+        "baseline_start_s": 197.77099990844727,
+        "baseline_end_s": 197.81599490844727,
+        "stimulus_start_s": 197.81599990844725,
+        "stimulus_end_s": 197.82599990844727
+      }
+    },
+    "2": {
+      "valid": false,
+      "reason": "Stimulus segments too short (minimum 0.3s required)",
+      "stimulus_level_pA": 10.0,
+      "windows": {
+        "baseline_start_s": 247.30200004577637,
+        "baseline_end_s": 247.34699504577637,
+        "stimulus_start_s": 247.34700004577635,
+        "stimulus_end_s": 247.35700004577637
+      }
+    },
+    "3": {
+      "valid": false,
+      "reason": "Stimulus segments too short (minimum 0.3s required)",
+      "stimulus_level_pA": 10.0,
+      "windows": {
+        "baseline_start_s": 265.51399993896484,
+        "baseline_end_s": 265.5589949389648,
+        "stimulus_start_s": 265.55899993896486,
+        "stimulus_end_s": 265.56899993896485
+      }
+    },
+    "4": {
+      "valid": false,
+      "reason": "Voltage artifact in stimulus period: Sharp corner detected (d\u00b2V/dt\u00b2=38335938560 mV/s\u00b2)",
+      "stimulus_level_pA": -30.0,
+      "windows": {
+        "baseline_start_s": 341.6449999809265,
+        "baseline_end_s": 341.6899799809265,
+        "stimulus_start_s": 342.24499998092654,
+        "stimulus_end_s": 343.24497998092653
+      }
+    },
+    "5": {
+      "valid": true,
+      "reason": null,
+      "stimulus_level_pA": -30.0,
+      "windows": {
+        "baseline_start_s": 367.12299966812134,
+        "baseline_end_s": 367.16797966812135,
+        "stimulus_start_s": 367.72299966812136,
+        "stimulus_end_s": 368.72297966812135
+      }
+    },
+    "6": {
+      "valid": true,
+      "reason": null,
+      "stimulus_level_pA": -50.0,
+      "windows": {
+        "baseline_start_s": 370.0299997329712,
+        "baseline_end_s": 370.0749797329712,
+        "stimulus_start_s": 370.6299997329712,
+        "stimulus_end_s": 371.6299797329712
+      }
+    },
+    "7": {
+      "valid": true,
+      "reason": null,
+      "stimulus_level_pA": -70.0,
+      "windows": {
+        "baseline_start_s": 373.3699998855591,
+        "baseline_end_s": 373.4149798855591,
+        "stimulus_start_s": 373.9699998855591,
+        "stimulus_end_s": 374.9699798855591
+      }
+    },
+    "8": {
+      "valid": true,
+      "reason": null,
+      "stimulus_level_pA": -90.0,
+      "windows": {
+        "baseline_start_s": 376.7239999771118,
+        "baseline_end_s": 376.7689799771118,
+        "stimulus_start_s": 377.32399997711184,
+        "stimulus_end_s": 378.32397997711183
+      }
+    },
+    "9": {
+      "valid": true,
+      "reason": null,
+      "stimulus_level_pA": -110.0,
+      "windows": {
+        "baseline_start_s": 380.63100004196167,
+        "baseline_end_s": 380.6759800419617,
+        "stimulus_start_s": 381.2310000419617,
+        "stimulus_end_s": 382.2309800419617
+      }
+    },
+    "10": {
+      "valid": false,
+      "reason": "Voltage artifact in stimulus period: Sharp corner detected (d\u00b2V/dt\u00b2=51226562560 mV/s\u00b2)",
+      "stimulus_level_pA": -110.0,
+      "windows": {
+        "baseline_start_s": 384.55999994277954,
+        "baseline_end_s": 384.60497994277955,
+        "stimulus_start_s": 385.15999994277956,
+        "stimulus_end_s": 386.15997994277956
+      }
+    },
+    "11": {
+      "valid": false,
+      "reason": "Voltage artifact in stimulus period: Sharp corner detected (d\u00b2V/dt\u00b2=55132811264 mV/s\u00b2)",
+      "stimulus_level_pA": -110.0,
+      "windows": {
+        "baseline_start_s": 397.9119997024536,
+        "baseline_end_s": 397.9569797024536,
+        "stimulus_start_s": 398.51199970245364,
+        "stimulus_end_s": 399.51197970245363
+      }
+    },
+    "12": {
+      "valid": false,
+      "reason": "Voltage artifact in stimulus period: Sharp corner detected (d\u00b2V/dt\u00b2=54667968512 mV/s\u00b2)",
+      "stimulus_level_pA": -110.0,
+      "windows": {
+        "baseline_start_s": 398.7389998435974,
+        "baseline_end_s": 398.7839798435974,
+        "stimulus_start_s": 399.33899984359743,
+        "stimulus_end_s": 400.33897984359743
+      }
+    },
+    "13": {
+      "valid": true,
+      "reason": null,
+      "stimulus_level_pA": -110.0,
+      "windows": {
+        "baseline_start_s": 412.07699966430664,
+        "baseline_end_s": 412.12197966430665,
+        "stimulus_start_s": 412.67699966430666,
+        "stimulus_end_s": 413.67697966430666
+      }
+    },
+    "14": {
+      "valid": true,
+      "reason": null,
+      "stimulus_level_pA": 100.0,
+      "windows": {
+        "baseline_start_s": 414.9689998626709,
+        "baseline_end_s": 415.0189798626709,
+        "stimulus_start_s": 415.0189998626709,
+        "stimulus_end_s": 415.5189798626709
+      }
+    },
+    "15": {
+      "valid": true,
+      "reason": null,
+      "stimulus_level_pA": 200.0,
+      "windows": {
+        "baseline_start_s": 415.86100006103516,
+        "baseline_end_s": 415.91098006103516,
+        "stimulus_start_s": 415.91100006103517,
+        "stimulus_end_s": 416.41098006103516
+      }
+    },
+    "16": {
+      "valid": true,
+      "reason": null,
+      "stimulus_level_pA": 150.0,
+      "windows": {
+        "baseline_start_s": 416.75499963760376,
+        "baseline_end_s": 416.80497963760376,
+        "stimulus_start_s": 416.80499963760377,
+        "stimulus_end_s": 417.30497963760376
+      }
+    },
+    "17": {
+      "valid": true,
+      "reason": null,
+      "stimulus_level_pA": 100.0,
+      "windows": {
+        "baseline_start_s": 417.62599992752075,
+        "baseline_end_s": 417.67597992752076,
+        "stimulus_start_s": 417.67599992752076,
+        "stimulus_end_s": 418.17597992752076
+      }
+    },
+    "18": {
+      "valid": true,
+      "reason": null,
+      "stimulus_level_pA": 110.0,
+      "windows": {
+        "baseline_start_s": 418.5019998550415,
+        "baseline_end_s": 418.5519798550415,
+        "stimulus_start_s": 418.5519998550415,
+        "stimulus_end_s": 419.0519798550415
+      }
+    },
+    "19": {
+      "valid": true,
+      "reason": null,
+      "stimulus_level_pA": 120.0,
+      "windows": {
+        "baseline_start_s": 419.3739995956421,
+        "baseline_end_s": 419.4239795956421,
+        "stimulus_start_s": 419.4239995956421,
+        "stimulus_end_s": 419.9239795956421
+      }
+    },
+    "20": {
+      "valid": true,
+      "reason": null,
+      "stimulus_level_pA": 130.0,
+      "windows": {
+        "baseline_start_s": 420.25099992752075,
+        "baseline_end_s": 420.30097992752076,
+        "stimulus_start_s": 420.30099992752076,
+        "stimulus_end_s": 420.80097992752076
+      }
+    },
+    "21": {
+      "valid": true,
+      "reason": null,
+      "stimulus_level_pA": 130.0,
+      "windows": {
+        "baseline_start_s": 421.1579999923706,
+        "baseline_end_s": 421.2029799923706,
+        "stimulus_start_s": 421.7579999923706,
+        "stimulus_end_s": 422.7579799923706
+      }
+    },
+    "22": {
+      "valid": true,
+      "reason": null,
+      "stimulus_level_pA": 120.0,
+      "windows": {
+        "baseline_start_s": 426.49399995803833,
+        "baseline_end_s": 426.53897995803834,
+        "stimulus_start_s": 427.09399995803835,
+        "stimulus_end_s": 428.09397995803835
+      }
+    },
+    "23": {
+      "valid": true,
+      "reason": null,
+      "stimulus_level_pA": 110.0,
+      "windows": {
+        "baseline_start_s": 431.80399990081787,
+        "baseline_end_s": 431.8489799008179,
+        "stimulus_start_s": 432.4039999008179,
+        "stimulus_end_s": 433.4039799008179
+      }
+    },
+    "24": {
+      "valid": true,
+      "reason": null,
+      "stimulus_level_pA": 140.0,
+      "windows": {
+        "baseline_start_s": 437.14299964904785,
+        "baseline_end_s": 437.18797964904786,
+        "stimulus_start_s": 437.7429996490479,
+        "stimulus_end_s": 438.74297964904787
+      }
+    },
+    "25": {
+      "valid": true,
+      "reason": null,
+      "stimulus_level_pA": 160.0,
+      "windows": {
+        "baseline_start_s": 440.09499979019165,
+        "baseline_end_s": 440.13997979019166,
+        "stimulus_start_s": 440.6949997901917,
+        "stimulus_end_s": 441.69497979019167
+      }
+    },
+    "26": {
+      "valid": true,
+      "reason": null,
+      "stimulus_level_pA": 180.0,
+      "windows": {
+        "baseline_start_s": 443.0099997520447,
+        "baseline_end_s": 443.0549797520447,
+        "stimulus_start_s": 443.6099997520447,
+        "stimulus_end_s": 444.6099797520447
+      }
+    },
+    "27": {
+      "valid": false,
+      "reason": "Stimulus segments too short (minimum 0.3s required)",
+      "stimulus_level_pA": 100.0,
+      "windows": {
+        "baseline_start_s": 445.97300004959106,
+        "baseline_end_s": 446.02298004959107,
+        "stimulus_start_s": 446.0230000495911,
+        "stimulus_end_s": 446.02598004959106
+      }
+    },
+    "28": {
+      "valid": false,
+      "reason": "Stimulus segments too short (minimum 0.3s required)",
+      "stimulus_level_pA": 200.0,
+      "windows": {
+        "baseline_start_s": 446.3999996185303,
+        "baseline_end_s": 446.4499796185303,
+        "stimulus_start_s": 446.4499996185303,
+        "stimulus_end_s": 446.45297961853026
+      }
+    },
+    "29": {
+      "valid": false,
+      "reason": "Stimulus segments too short (minimum 0.3s required)",
+      "stimulus_level_pA": 300.0,
+      "windows": {
+        "baseline_start_s": 446.82499980926514,
+        "baseline_end_s": 446.87497980926514,
+        "stimulus_start_s": 446.87499980926515,
+        "stimulus_end_s": 446.8779798092651
+      }
+    },
+    "30": {
+      "valid": false,
+      "reason": "Stimulus segments too short (minimum 0.3s required)",
+      "stimulus_level_pA": 400.0,
+      "windows": {
+        "baseline_start_s": 447.231999874115,
+        "baseline_end_s": 447.281979874115,
+        "stimulus_start_s": 447.281999874115,
+        "stimulus_end_s": 447.284979874115
+      }
+    },
+    "31": {
+      "valid": false,
+      "reason": "Stimulus segments too short (minimum 0.3s required)",
+      "stimulus_level_pA": 350.0,
+      "windows": {
+        "baseline_start_s": 447.6599998474121,
+        "baseline_end_s": 447.7099798474121,
+        "stimulus_start_s": 447.7099998474121,
+        "stimulus_end_s": 447.7129798474121
+      }
+    },
+    "32": {
+      "valid": false,
+      "reason": "Stimulus segments too short (minimum 0.3s required)",
+      "stimulus_level_pA": 300.0,
+      "windows": {
+        "baseline_start_s": 448.07800006866455,
+        "baseline_end_s": 448.12798006866456,
+        "stimulus_start_s": 448.12800006866456,
+        "stimulus_end_s": 448.13098006866454
+      }
+    },
+    "33": {
+      "valid": false,
+      "reason": "Stimulus segments too short (minimum 0.3s required)",
+      "stimulus_level_pA": 310.0,
+      "windows": {
+        "baseline_start_s": 448.5549998283386,
+        "baseline_end_s": 448.6049798283386,
+        "stimulus_start_s": 448.60499982833863,
+        "stimulus_end_s": 448.6079798283386
+      }
+    },
+    "34": {
+      "valid": false,
+      "reason": "Stimulus segments too short (minimum 0.3s required)",
+      "stimulus_level_pA": -30.0,
+      "windows": {
+        "baseline_start_s": 449.02899980545044,
+        "baseline_end_s": 449.07397980545045,
+        "stimulus_start_s": 449.07399980545046,
+        "stimulus_end_s": 449.08399980545045
+      }
+    },
+    "35": {
+      "valid": false,
+      "reason": "Stimulus segments too short (minimum 0.3s required)",
+      "stimulus_level_pA": -30.0,
+      "windows": {
+        "baseline_start_s": 451.33399963378906,
+        "baseline_end_s": 451.3789796337891,
+        "stimulus_start_s": 451.3789996337891,
+        "stimulus_end_s": 451.38899963378907
+      }
+    },
+    "36": {
+      "valid": false,
+      "reason": "Stimulus not square-shaped",
+      "stimulus_level_pA": 5.099999904632568,
+      "windows": {
+        "baseline_start_s": 453.7649998664856,
+        "baseline_end_s": 453.8099798664856,
+        "stimulus_start_s": 454.5674998664856,
+        "stimulus_end_s": 470.3649798664856
+      }
+    },
+    "37": {
+      "valid": false,
+      "reason": "Stimulus not square-shaped",
+      "stimulus_level_pA": 5.099999904632568,
+      "windows": {
+        "baseline_start_s": 455.02099990844727,
+        "baseline_end_s": 455.0659799084473,
+        "stimulus_start_s": 455.8234999084473,
+        "stimulus_end_s": 471.6209799084473
+      }
+    },
+    "38": {
+      "valid": false,
+      "reason": "Stimulus not square-shaped",
+      "stimulus_level_pA": 5.099999904632568,
+      "windows": {
+        "baseline_start_s": 456.2119998931885,
+        "baseline_end_s": 456.2569798931885,
+        "stimulus_start_s": 457.0144998931885,
+        "stimulus_end_s": 462.15157989318845
+      }
+    },
+    "39": {
+      "valid": false,
+      "reason": "Stimulus not square-shaped",
+      "stimulus_level_pA": 5.099999904632568,
+      "windows": {
+        "baseline_start_s": 463.79699993133545,
+        "baseline_end_s": 463.84197993133546,
+        "stimulus_start_s": 464.59949993133546,
+        "stimulus_end_s": 480.39697993133547
+      }
+    },
+    "40": {
+      "valid": false,
+      "reason": "Stimulus not square-shaped",
+      "stimulus_level_pA": 5.099999904632568,
+      "windows": {
+        "baseline_start_s": 465.02899980545044,
+        "baseline_end_s": 465.07397980545045,
+        "stimulus_start_s": 465.83149980545045,
+        "stimulus_end_s": 481.62897980545046
+      }
+    },
+    "41": {
+      "valid": false,
+      "reason": "Stimulus segments too short (minimum 0.3s required)",
+      "stimulus_level_pA": -30.0,
+      "windows": {
+        "baseline_start_s": 478.19199991226196,
+        "baseline_end_s": 478.236979912262,
+        "stimulus_start_s": 478.236999912262,
+        "stimulus_end_s": 478.24699991226197
+      }
+    },
+    "42": {
+      "valid": false,
+      "reason": "Stimulus not square-shaped",
+      "stimulus_level_pA": 5.099999904632568,
+      "windows": {
+        "baseline_start_s": 489.9429998397827,
+        "baseline_end_s": 489.9879798397827,
+        "stimulus_start_s": 490.7454998397827,
+        "stimulus_end_s": 506.54297983978273
+      }
+    },
+    "43": {
+      "valid": false,
+      "reason": "Stimulus not square-shaped",
+      "stimulus_level_pA": 5.099999904632568,
+      "windows": {
+        "baseline_start_s": 494.95300006866455,
+        "baseline_end_s": 494.99798006866456,
+        "stimulus_start_s": 495.75550006866456,
+        "stimulus_end_s": 500.7319000686646
+      }
+    },
+    "44": {
+      "valid": false,
+      "reason": "Stimulus not square-shaped",
+      "stimulus_level_pA": 5.099999904632568,
+      "windows": {
+        "baseline_start_s": 502.3329997062683,
+        "baseline_end_s": 502.3779797062683,
+        "stimulus_start_s": 503.1354997062683,
+        "stimulus_end_s": 508.3926797062683
+      }
+    },
+    "45": {
+      "valid": false,
+      "reason": "Stimulus not square-shaped",
+      "stimulus_level_pA": 5.099999904632568,
+      "windows": {
+        "baseline_start_s": 509.9229998588562,
+        "baseline_end_s": 509.9679798588562,
+        "stimulus_start_s": 510.7254998588562,
+        "stimulus_end_s": 516.0621798588562
+      }
+    },
+    "46": {
+      "valid": false,
+      "reason": "Stimulus segments too short (minimum 0.3s required)",
+      "stimulus_level_pA": -30.0,
+      "windows": {
+        "baseline_start_s": 532.8959999084473,
+        "baseline_end_s": 532.9409799084473,
+        "stimulus_start_s": 532.9409999084472,
+        "stimulus_end_s": 532.9509999084472
+      }
+    },
+    "47": {
+      "valid": false,
+      "reason": "Stimulus segments too short (minimum 0.3s required)",
+      "stimulus_level_pA": -30.0,
+      "windows": {
+        "baseline_start_s": 544.2669997215271,
+        "baseline_end_s": 544.3119797215271,
+        "stimulus_start_s": 544.3119997215271,
+        "stimulus_end_s": 544.321999721527
+      }
+    },
+    "48": {
+      "valid": false,
+      "reason": "Stimulus segments too short (minimum 0.3s required)",
+      "stimulus_level_pA": -30.0,
+      "windows": {
+        "baseline_start_s": 555.5320000648499,
+        "baseline_end_s": 555.5769800648499,
+        "stimulus_start_s": 555.5770000648498,
+        "stimulus_end_s": 555.5870000648498
+      }
+    },
+    "49": {
+      "valid": false,
+      "reason": "Stimulus segments too short (minimum 0.3s required)",
+      "stimulus_level_pA": -30.0,
+      "windows": {
+        "baseline_start_s": 566.8420000076294,
+        "baseline_end_s": 566.8869800076294,
+        "stimulus_start_s": 566.8870000076294,
+        "stimulus_end_s": 566.8970000076293
+      }
+    },
+    "50": {
+      "valid": false,
+      "reason": "Stimulus segments too short (minimum 0.3s required)",
+      "stimulus_level_pA": -30.0,
+      "windows": {
+        "baseline_start_s": 578.2879996299744,
+        "baseline_end_s": 578.3329796299744,
+        "stimulus_start_s": 578.3329996299743,
+        "stimulus_end_s": 578.3429996299743
+      }
+    },
+    "51": {
+      "valid": false,
+      "reason": "Stimulus not square-shaped",
+      "stimulus_level_pA": 25.0,
+      "windows": {
+        "baseline_start_s": 622.2379999160767,
+        "baseline_end_s": 622.2829799160767,
+        "stimulus_start_s": 622.9183999160766,
+        "stimulus_end_s": 623.8730999160766
+      }
+    },
+    "52": {
+      "valid": false,
+      "reason": "Stimulus not square-shaped",
+      "stimulus_level_pA": 30.0,
+      "windows": {
+        "baseline_start_s": 631.9279999732971,
+        "baseline_end_s": 631.9729799732971,
+        "stimulus_start_s": 632.5949599732971,
+        "stimulus_end_s": 633.5738399732971
+      }
+    },
+    "53": {
+      "valid": false,
+      "reason": "Stimulus not square-shaped",
+      "stimulus_level_pA": 30.0,
+      "windows": {
+        "baseline_start_s": 658.4319996833801,
+        "baseline_end_s": 658.4769796833801,
+        "stimulus_start_s": 659.0989596833801,
+        "stimulus_end_s": 660.0778396833801
+      }
+    },
+    "54": {
+      "valid": false,
+      "reason": "Stimulus not square-shaped",
+      "stimulus_level_pA": 30.0,
+      "windows": {
+        "baseline_start_s": 684.9509997367859,
+        "baseline_end_s": 684.9959797367859,
+        "stimulus_start_s": 685.6179597367859,
+        "stimulus_end_s": 686.5968397367859
+      }
+    },
+    "55": {
+      "valid": false,
+      "reason": "Stimulus segments too short (minimum 0.3s required)",
+      "stimulus_level_pA": 10.0,
+      "windows": {
+        "baseline_start_s": 724.5650000572205,
+        "baseline_end_s": 724.6099800572205,
+        "stimulus_start_s": 724.6100000572204,
+        "stimulus_end_s": 724.6200000572204
+      }
+    },
+    "56": {
+      "valid": false,
+      "reason": "Stimulus segments too short (minimum 0.3s required)",
+      "stimulus_level_pA": 10.0,
+      "windows": {
+        "baseline_start_s": 844.2300000190735,
+        "baseline_end_s": 844.2749800190735,
+        "stimulus_start_s": 844.2750000190734,
+        "stimulus_end_s": 844.2850000190734
+      }
+    },
+    "57": {
+      "valid": false,
+      "reason": "Stimulus segments too short (minimum 0.3s required)",
+      "stimulus_level_pA": 10.0,
+      "windows": {
+        "baseline_start_s": 965.8559999465942,
+        "baseline_end_s": 965.9009799465942,
+        "stimulus_start_s": 965.9009999465942,
+        "stimulus_end_s": 965.9109999465942
+      }
+    },
+    "58": {
+      "valid": false,
+      "reason": "Stimulus segments too short (minimum 0.3s required)",
+      "stimulus_level_pA": 10.0,
+      "windows": {
+        "baseline_start_s": 975.6519999504089,
+        "baseline_end_s": 975.696979950409,
+        "stimulus_start_s": 975.6969999504089,
+        "stimulus_end_s": 975.7069999504089
+      }
+    },
+    "59": {
+      "valid": false,
+      "reason": "Stimulus segments too short (minimum 0.3s required)",
+      "stimulus_level_pA": 10.0,
+      "windows": {
+        "baseline_start_s": 984.7589998245239,
+        "baseline_end_s": 984.8039798245239,
+        "stimulus_start_s": 984.8039998245239,
+        "stimulus_end_s": 984.8139998245239
+      }
+    },
+    "60": {
+      "valid": false,
+      "reason": "Stimulus segments too short (minimum 0.3s required)",
+      "stimulus_level_pA": 10.0,
+      "windows": {
+        "baseline_start_s": 1009.7189998626709,
+        "baseline_end_s": 1009.7639798626709,
+        "stimulus_start_s": 1009.7639998626709,
+        "stimulus_end_s": 1009.7739998626708
+      }
+    }
+  },
+  "kept_sweeps": [
+    5,
+    6,
+    7,
+    8,
+    9,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26
+  ],
+  "dropped_sweeps": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    10,
+    11,
+    12,
+    27,
+    28,
+    29,
+    30,
+    31,
+    32,
+    33,
+    34,
+    35,
+    36,
+    37,
+    38,
+    39,
+    40,
+    41,
+    42,
+    43,
+    44,
+    45,
+    46,
+    47,
+    48,
+    49,
+    50,
+    51,
+    52,
+    53,
+    54,
+    55,
+    56,
+    57,
+    58,
+    59,
+    60
+  ],
+  "total_sweeps": 61,
+  "valid_sweeps": 19,
+  "rejected_sweeps": 42
+}
